@@ -1,8 +1,8 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
-import { getHtml } from "../utils/getHtml";
-import type { User } from "../types/user"; // besser: Type in User umbenennen
+import { getHtmlSubmitEmail } from "../utils/getHtml";
+import type { SubmitEmailData } from "../types/SubmitEmailData"; 
 
 export const eingangsBestaetigung = onCall(
   {
@@ -15,9 +15,9 @@ export const eingangsBestaetigung = onCall(
     // Optional: nur eingeloggte Nutzer erlauben
     // if (!request.auth) throw new HttpsError("unauthenticated", "Login erforderlich.");
 
-    const data = request.data as { user: User };
-    if (!data?.user) {
-      throw new HttpsError("invalid-argument", "Fehlende Felder (user).");
+    const data = request.data as { submitEmailData: SubmitEmailData };
+    if (!data?.submitEmailData) {
+      throw new HttpsError("invalid-argument", "Fehlende Felder (submitEmailData).");
     }
 
     const mailUser = process.env.USER_EMAIL!;
@@ -33,11 +33,11 @@ export const eingangsBestaetigung = onCall(
     } as SMTPTransport.Options);
 
     const subject ="Bestätigung ihres Mitgliedsantrags beim Alumniverein des Hainberg-Gymnasiums Göttingen e.V.";
-    const html = getHtml(data.user);
+    const html = getHtmlSubmitEmail(data.submitEmailData);
 
     const info = await transporter.sendMail({
       from: `"Alumni-Verein des Hainberg-Gymnasiums" <${mailUser}>`,
-      to: data.user.email,
+      to: data.submitEmailData.email,
       subject,
       html,
     });
