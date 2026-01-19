@@ -1,5 +1,6 @@
 import { AufnahmeEmailData } from "../types/AufnahmeEmailData";
 import { SubmitEmailData } from "../types/SubmitEmailData";
+import { PostNotificationData } from "../types/PostNotificationData";
 
 export function getHtmlSubmitEmail(user: SubmitEmailData): string {
   return `
@@ -42,4 +43,43 @@ export function getHtmlaufnahmeBestaetigung(user: AufnahmeEmailData): string {
       <p>Leider müssen wir Ihnen mitteilen, dass Ihr Antrag abgelehnt wurde. Falls Sie Fragen zu dieser Entscheidung haben, können Sie sich gerne per E-Mail an uns wenden.</p>
       <p>Mit freundlichen Grüßen,<br>Ihr Alumni-Verein-Team</p>`
   }
+}
+
+
+export function getHtmlUploadAdminNotification(text: string): string {
+  return `
+    <p>Hallo,</p>
+    <p>${text}</p>
+    <p>Mit freundlichen Grüßen,<br>Ihr Alumni-Verein-Team</p>
+  `;
+}
+
+export function getHtmlPostAdminNotification(postData: PostNotificationData): string {
+  const titleSection = postData.postTitle 
+    ? `<h2>${postData.postTitle}</h2>`
+    : '<h2>Neuer Beitrag von Mitglied</h2>';
+  
+  const imageSection = postData.imageUrl 
+    ? `
+    <div style="margin: 15px 0;">
+      <img src="${postData.imageUrl}" alt="Beitragsbild" style="max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd;" />
+    </div>
+    `
+    : '';
+  
+  return `
+    <p>Hallo Admin,</p>
+    <p>Es wurde ein neuer Beitrag von einem Mitglied veröffentlicht:</p>
+    ${titleSection}
+    <p><strong>Von:</strong> ${postData.mitgliedName} (${postData.mitgliedEmail})</p>
+    <hr>
+    ${imageSection}
+    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+      <p><strong>Beitragsinhalt:</strong></p>
+      <p>${postData.postContent.replace(/\n/g, '<br>')}</p>
+    </div>
+    ${postData.postId ? `<p><small>Post-ID: ${postData.postId}</small></p>` : ''}
+    <p>Bitte überprüfen Sie den Beitrag im Admin-Bereich.</p>
+    <p>Mit freundlichen Grüßen,<br>Ihr Alumni-Verein-Team</p>
+  `;
 }
